@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Error 404 – Dynamic Tiled Pop‑Ups</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      cursor: pointer;
+      background: #262b36;
+    }
+    #errorSvg {
+      position: absolute;
+      top: 0; left: 0;
+      /* make it cover the entire monitor at all times */
+      width: 100vw;  
+      height: 100vh;
+      pointer-events: none;
+      transition: transform 0.3s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <object id="errorSvg"
+          type="image/svg+xml"
+          data="404-svg-animation.svg">
+  </object>
+
+  <script>
+  // —————— Compute full‑screen dims once ——————
+  const fullW = screen.availWidth;
+  const fullH = screen.availHeight;
+
+  // —————— Parent: spawn & close on first click ——————
+  if (!window.name.startsWith('tile')) {
+    window.addEventListener('click', () => {
+      const url = window.location.href;
+      // spawn four equal quadrants
+      const specs = [
+        { left: 0,       top: 0 },
+        { left: fullW/2, top: 0 },
+        { left: 0,       top: fullH/2 },
+        { left: fullW/2, top: fullH/2 }
+      ];
+      specs.forEach((t, i) => {
+        window.open(
+          url,
+          `tile${i}`,
+          `width=${fullW/2},height=${fullH/2},left=${t.left},top=${t.top}`
+        );
+      });
+      // close the main window
+      setTimeout(() => window.close(), 200);
+    }, { once: true });
+  }
+
+  // —————— Child: dynamic reposition logic ——————
+  if (window.name.startsWith('tile')) {
+    const svgObj = document.getElementById('errorSvg');
+
+    // ensure SVG itself is full‑monitor sized
+    svgObj.addEventListener('load', () => {
+      svgObj.style.width  = fullW + 'px';
+      svgObj.style.height = fullH + 'px';
+
+      // helper to update the slice based on current screen position
+      function updateSlice() {
+        // screenX/Y = top-left corner of this window
+        const x = window.screenX !== undefined ? window.screenX : window.screenLeft;
+        const y = window.screenY !== undefined ? window.screenY : window.screenTop;
+        svgObj.style.transform = `translate(-${x}px, -${y}px)`;
+      }
+
+      // initial slice
+      updateSlice();
+
+      // re-calc on resize immediately
+      window.addEventListener('resize', updateSlice);
+
+      // poll for moves (no native 'move' event)
+      let lastX = window.screenX, lastY = window.screenY;
+      setInterval(() => {
+        const curX = window.screenX, curY = window.screenY;
+        if (curX !== lastX || curY !== lastY) {
+          lastX = curX; lastY = curY;
+          updateSlice();
+        }
+      }, 100);
+    });
+  }
+  </script>
+</body>
+</html>
