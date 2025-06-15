@@ -11,7 +11,7 @@ A playful and interactive 404 error page that:
 
 ## 🎨 Showcase
 
-Below is your SVG animation showcased directly in the README (resize your viewport to see the full image):
+Below is your SVG animation showcased directly in the README 
 
 <p align="center">
   <img src="404-svg-animation.svg" alt="Error 404 Animation" style="max-width: 100%; height: auto;" />
@@ -55,5 +55,5 @@ open index.html  # or double-click in your file explorer
 
 ## 📝 License
 
-MIT © Your Name
+MIT © Rafee
 
